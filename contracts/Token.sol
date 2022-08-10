@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-// Import this file to use console.log
 import "hardhat/console.sol";
 
 contract Token {
@@ -12,15 +11,35 @@ contract Token {
 
 	mapping(address => uint256) public balanceOf;
 
-	constructor(string memory _name, string memory _symbol, uint256 _totalSupply) {
+	event Transfer(
+		address indexed from,
+		address indexed to,
+		uint256 value
+	);
+
+	constructor(
+		string memory _name, 
+		string memory _symbol, 
+		uint256 _totalSupply) 
+	{
 		name = _name;
 		symbol = _symbol;
 		totalSupply = _totalSupply * (10**decimals);
 		balanceOf[msg.sender] = totalSupply;
 	}
 
-	// function balanceOf(address _owner) public view returns (uint256 balance){
+	function transfer(address _to, uint256 _value) 
+		public
+		returns (bool success)
+	{
+		require(balanceOf[msg.sender] >= _value);
+		require(_to != address(0));
 
-	// }
+		balanceOf[msg.sender] = balanceOf[msg.sender] -_value;
+		balanceOf[_to] = balanceOf[_to] + _value;
 
+		emit Transfer(msg.sender, _to, _value);
+
+		return true;
+	}
 }
