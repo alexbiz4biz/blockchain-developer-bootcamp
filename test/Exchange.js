@@ -205,9 +205,19 @@ describe('Exchange', () => {
 			transaction = await exchange.connect(user1).depositToken(token1.address, amount)
 			result = await transaction.wait()
 
-			transaction = await exchange.connect(user1).makeOrder(token2.address, amount, token1.address, amount)
+			// Give Tokens to user 2
+			transaction = await token2.connect(deployer).transfer(user2.address, tokens(100))
 			result = await transaction.wait()
 
+			transaction = await token2.connect(user2).approve(exchange.address, tokens(2))
+			result = await transaction.wait()
+
+			transaction = await exchange.connect(user2).depositToken(token2.address, tokens(2))
+			result = await transaction.wait()
+
+			// make order
+			transaction = await exchange.connect(user1).makeOrder(token2.address, amount, token1.address, amount)
+			result = await transaction.wait()
 	    })
 
 
@@ -258,6 +268,26 @@ describe('Exchange', () => {
 				    await expect(exchange.connect(user2).cancelOrder(1)).to.be.reverted
 				})
 			})
+		})
+
+		describe('Filling orders', async () => {
+			beforeEach(async () => {
+				transaction = await exchange.connect(user2).cancelOrder(1)
+			  	result = await transaction.wait()
+			})
+
+			it('Executes the trande and charge fees', async () => {
+				// Token Give Check Balance
+				expect(await exchange.balanceOf(token1.address,user1.address)).to.equal(tokens(0))
+				expect(await exchange.balanceOf(token1.address,user2.address)).to.equal(tokens(1))
+				expect(await exchange.balanceOf(token1.address,feeAccount.address)).to.equal(tokens(0))
+
+				// token Get Check Balance
+				expect(await exchange.balanceOf(token2.address,user1.address)).to.equal(tokens(1))
+				expect(await exchange.balanceOf(token2.address,user2.address)).to.equal(tokens(0.9))
+				expect(await exchange.balanceOf(token2.address,feeAccount.address)).to.equal(tokens(0.1))
+			})
+
 		})
     })
 })
