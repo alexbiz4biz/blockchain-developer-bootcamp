@@ -6,7 +6,8 @@ import {
   loadProvider,
   loadNetwork,
   loadAccount,
-  loadToken
+  loadTokens,
+  loadExchange
 } from '../store/interactions'
 
 
@@ -15,13 +16,19 @@ function App() {
 
   const dispatch = useDispatch()
   const loadBlockchainData = async () => {
-    const account = await loadAccount(dispatch)
 
     const provider = loadProvider(dispatch)
     const chainId = await loadNetwork(provider, dispatch)
 
+    const account = await loadAccount(provider, dispatch)
+
     // Token Smart Contract
-    const token = await loadToken(provider, config[chainId].DApp.address, dispatch)
+    const DApp = config[chainId].DApp
+    const mETH = config[chainId].mETH
+    const exchangeConfig = config[chainId].exchange
+
+    await loadTokens(provider, [DApp.address, mETH.address], dispatch)
+    await loadExchange(provider, exchangeConfig.address, dispatch)
 
   }
 
