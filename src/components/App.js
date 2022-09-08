@@ -10,7 +10,7 @@ import {
   loadExchange
 } from '../store/interactions'
 
-
+import Navbar from './Navbar'
 
 function App() {
 
@@ -18,9 +18,19 @@ function App() {
   const loadBlockchainData = async () => {
 
     const provider = loadProvider(dispatch)
+
+    // Fetch Chain ID
     const chainId = await loadNetwork(provider, dispatch)
 
-    const account = await loadAccount(provider, dispatch)
+    // reload page when network changes
+    window.ethereum.on('chainChanged', () => {
+      window.location.reload()
+    })
+
+    window.ethereum.on('accountsChanged', () => {
+      console.log('Account changed')
+      loadAccount(provider, dispatch)
+    })
 
     // Token Smart Contract
     const DApp = config[chainId].DApp
@@ -39,7 +49,7 @@ function App() {
   return (
     <div>
 
-      {/* Navbar */}
+      <Navbar/>
 
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>
