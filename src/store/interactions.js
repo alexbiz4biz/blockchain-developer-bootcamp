@@ -44,8 +44,6 @@ export const loadTokens = async (provider, addresses, dispatch) => {
 }
 
 export const loadExchange = async (provider, address, dispatch) => {
-    
-
     const exchange = new ethers.Contract( address, EXCHANGE_ABI , provider )
     dispatch({ type: 'EXCHANGE_LOADED', exchange })
 

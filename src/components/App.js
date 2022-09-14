@@ -11,10 +11,13 @@ import {
 } from '../store/interactions'
 
 import Navbar from './Navbar'
+import Markets from './Markets'
+
 
 function App() {
 
   const dispatch = useDispatch()
+
   const loadBlockchainData = async () => {
 
     const provider = loadProvider(dispatch)
@@ -35,9 +38,9 @@ function App() {
     // Token Smart Contract
     const DApp = config[chainId].DApp
     const mETH = config[chainId].mETH
-    const exchangeConfig = config[chainId].exchange
-
     await loadTokens(provider, [DApp.address, mETH.address], dispatch)
+
+    const exchangeConfig = config[chainId].exchange
     await loadExchange(provider, exchangeConfig.address, dispatch)
 
   }
@@ -49,12 +52,12 @@ function App() {
   return (
     <div>
 
-      <Navbar/>
+      <Navbar />
 
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>
 
-          {/* Markets */}
+           <Markets />
 
           {/* Balance */}
 
