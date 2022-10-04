@@ -85,10 +85,35 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
 
 }
 
+// *** LOAD ALL ORDERS *** LOAD ALL ORDERS *** LOAD ALL ORDERS *** LOAD ALL ORDERS
+
+export const loadAllOrders = async (provider, exchange, dispatch) => {
+
+    const block = await provider.getBlockNumber()
+    
+    // Fetch Canceled Orders
+    const cancelStream = await exchange.queryFilter('Cancel', 0, block)
+    const cancelledOrders = cancelStream.map(event => event.args)
+
+    dispatch({ type: 'CANCELLED_ORDERS_LOADED', cancelledOrders })
+
+    // Fetch Filled Orders
+    const tradeStream = await exchange.queryFilter('Trade', 0, block)
+    const filledOrders = tradeStream.map(event => event.args)
+
+    dispatch({ type: 'FILLED_ORDERS_LOADED', filledOrders })
+
+    // Fetch all orders
+    const orderStream = await exchange.queryFilter('Order', 0, block)
+    const allOrders = orderStream.map(event => event.args)
+
+    dispatch({ type: 'ALL_ORDERS_LOADED', allOrders })
+}
+
 export const transferTokens = async (provider, exchange, transferType, token, amount, dispatch) => {
     let transaction
 
-    dispatch({type: 'TRANSFER_REQUEST'})
+    dispatch({ type: 'TRANSFER_REQUEST' })
 
     try {
         const signer = await provider.getSigner()
@@ -146,3 +171,4 @@ export const makeSellOrder = async (provider, exchange, tokens, order, dispatch)
         dispatch({ type: "NEW_ORDER_FAIL" })
     }
 }
+
