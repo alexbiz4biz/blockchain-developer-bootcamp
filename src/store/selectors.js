@@ -32,7 +32,7 @@ const decorateOrder = (order, tokens) => {
 
 	// Note: DApp should be considered token0, mETH is considered token1
 	// Example: Giving mETH in exchange for DApp
-	if (order.tokenGive === tokens[0].address) {
+	if (order.tokenGive === tokens[1].address) {
 		token0Amount = order.amountGive // The amount of DApp we are giving
 		token1Amount = order.amountGet // The amount of mETH we want
 	} else {
@@ -41,16 +41,79 @@ const decorateOrder = (order, tokens) => {
 	}
 
 	const precision = 100000
-	let tokenPrice = (token0Amount / token1Amount)
+	let tokenPrice = (token1Amount / token0Amount)
 	tokenPrice = Math.round(tokenPrice * precision) / precision
 
 	return({
 		...order,
-		token0Amount: ethers.utils.formatUnits(token0Amount, 'ether'),
 		token1Amount: ethers.utils.formatUnits(token1Amount, 'ether'),
+		token0Amount: ethers.utils.formatUnits(token0Amount, 'ether'),
 		tokenPrice,
 		formattedTimestamp: moment.unix(order.timestamp).format('h:mm:ssa d MMM D YYYY')
 	})
+}
+
+// *** ALL FILLED ORDERS *** ALL FILLED ORDERS *** ALL FILLED ORDERS *** ALL FILLED ORDERS
+export const filledOrdersSelector = createSelector(
+	filledOrders,
+	tokens,
+	(orders, tokens) => {
+
+		if ( !tokens[0] || !tokens[1] ) { return } 
+
+		// Filter orders by selected token
+		orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address )
+		orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address )
+
+		// 1 Sort Orders by time
+		orders = orders.sort((a,b) => a.timestamp - b.timestamp)
+
+		orders = decorateFilledOrders(orders, tokens)
+
+		orders = orders.sort((a,b) => b.timestamp - a.timestamp)
+
+    console.log(orders)
+		return orders
+	}
+)
+
+const decorateFilledOrders = (orders, tokens) => {
+
+	let previousOrder = orders[0]
+
+	return(
+		orders.map((order) => {
+			// decorate each order
+			order = decorateOrder(order, tokens)
+			order = decorateFilledOrder(order, previousOrder)
+			previousOrder = order
+			return order
+		})
+	)
+}
+
+
+const decorateFilledOrder = (order, previousOrder) => {
+
+	return ({
+		...order,
+		tokenPriceClass: tokenPriceClass(order.tokenPrice, order.id, previousOrder)
+	})
+}
+
+const tokenPriceClass = (tokenPrice, orderId, previousOrder) => {
+  // Show green price if only one order exists
+  if (previousOrder.id === orderId) {
+    return GREEN
+  }
+
+  // Show green price if order price higher than previous order
+  // Show red price if order price lower than previous order
+  if (previousOrder.tokenPrice <= tokenPrice) {
+    return GREEN // success
+  } else {
+    return RED // danger
+  }
 }
 
  
