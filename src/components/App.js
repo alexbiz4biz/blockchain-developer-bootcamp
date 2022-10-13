@@ -17,8 +17,9 @@ import Markets from './Markets'
 import Balance from './Balance'
 import Order from './Order'
 import PriceChart from './PriceChart'
-import OrderBook from './OrderBook'
+import Transactions from './Transactions'
 import Trades from './Trades'
+import OrderBook from './OrderBook'
 
 function App() {
 
@@ -37,7 +38,6 @@ function App() {
     })
 
     window.ethereum.on('accountsChanged', () => {
-      console.log('Account changed')
       loadAccount(provider, dispatch)
     })
 
@@ -76,10 +76,10 @@ function App() {
         </section>
         <section className='exchange__section--right grid'>
 
-         <PriceChart />
+          <PriceChart />
           
 
-          {/* Transactions */}
+          <Transactions />
 
           <Trades />
 
