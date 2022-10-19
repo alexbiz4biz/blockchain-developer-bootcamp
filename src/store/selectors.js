@@ -61,7 +61,7 @@ const decorateMyOpenOrders = (orders, tokens) => {
 }
 
 const decorateMyOpenOrder = (order, tokens) => {
-  let orderType = order.tokenGive == tokens[1].address ? 'buy' : 'sell'
+  let orderType = order.tokenGive === tokens[1].address ? 'buy' : 'sell'
 
   return({
     ...order,
