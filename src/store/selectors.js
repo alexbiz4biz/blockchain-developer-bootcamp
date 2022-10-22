@@ -283,6 +283,9 @@ export const priceChartSelector = createSelector(
 
 		if ( !tokens[0] || !tokens[1] ) { return } 
 
+		// console.log('tokens[0].address',tokens[0].address)
+		// console.log('tokens[1].address',tokens[1].address)
+
 		// Filter orders by selected token
 		orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address )
 		orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address )
